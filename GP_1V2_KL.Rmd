@@ -1,0 +1,60 @@
+---
+title: "Group Project 1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Cleaning the Data
+Before we ran our linear regression model, we cleaned the data by factorizing any variables that we wanted to specifically categorize for our analysis.
+
+```{r}
+loan <- read.csv("ProjectA_Listings2013.csv")
+str(loan)
+
+loan$loan_status <- as.factor(loan$loan_status)
+loan$loan_status_description <- as.factor(loan$loan_status_description)
+loan$prosper_rating <- as.factor(loan$prosper_rating)
+loan$prosper_score <- as.factor(loan$prosper_score)
+loan$income_range <- as.factor(loan$income_range)
+loan$income_range_description <- as.factor(loan$income_range_description)
+loan$employment_status_description <- as.factor(loan$employment_status_description)
+loan$scorex <- as.factor(loan$scorex)
+loan$borrower_state <- as.factor(loan$borrower_state)
+loan$borrower_city <- as.factor(loan$borrower_city)
+loan$lender_indicator <- as.factor(loan$lender_indicator)
+
+
+str(loan)
+summary(loan)
+
+```
+
+## Creating the Linear Model
+
+```{r}
+# Create and run the Linear Model
+#include only variables that would be evaluated at time of borrower rate creation
+linear1 <- lm(formula = borrower_rate ~ amount_funded + listing_term + prosper_score + stated_monthly_income + months_employed + monthly_debt + current_delinquencies + delinquencies_last7_years + public_records_last10_years + public_records_last12_months + credit_lines_last7_years + inquiries_last6_months + amount_delinquent + current_credit_lines + open_credit_lines + bankcard_utilization + total_open_revolving_accounts + installment_balance   + real_estate_balance + total_inquiries + total_trade_items + satisfactory_accounts + delinquencies_over30_days + delinquencies_over60_days + delinquencies_over90_days + scorex + prosper_rating + income_range_description, data = loan)
+summary(linear1)
+
+```
+
+The output of this model shows that scorex is a small component of calculating a borrower's rate given that **lower scorex scores do not necessarily correlate to a higher borrower rate**. This linear model shows that a borrower's **(1) prosper rating, (2) scorex, and (3) prosper score** have the largest influence on a borrower's rate. However, we believe that a borrower's prosper rating may be an output of a borrower's scorex and prosper score.
+
+
+## Creating the Logistic Model
+Once we determined which variables were considered "credit risks," we conducted an analysis of variables that actually caused a loan to default.
+
+```{r}
+loan$loan_status <- ifelse(loan$loan_status == 3, 1, 0)
+
+# Run the Logistic Model
+default1 <- glm(formula = loan_status ~ borrower_rate + amount_funded + listing_term + prosper_score + stated_monthly_income + months_employed + monthly_debt + current_delinquencies + delinquencies_last7_years + public_records_last10_years + public_records_last12_months + credit_lines_last7_years + inquiries_last6_months + amount_delinquent + current_credit_lines + open_credit_lines + bankcard_utilization + total_open_revolving_accounts + installment_balance + real_estate_balance + total_inquiries + total_trade_items + satisfactory_accounts + delinquencies_over30_days + delinquencies_over60_days + delinquencies_over90_days + scorex + prosper_rating + income_range_description, data = loan)
+summary(default1)
+
+```
+
+It was interesting to note that while scorex was considered a "credit risk," **it did not have a statistically significant correlation with the likelihood of a loan defaulting.** In fact, those with a prosper rating of AA, the highest rating possible, had a higher likelihood of defaulting on their loan than those with a prosper rating of B, C, or D, indicating that Prosper's algorithm for calculating credit risk was not entirely accurate.
