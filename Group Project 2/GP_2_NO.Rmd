@@ -1,0 +1,72 @@
+---
+title: "Group 2: Data Set Regression"
+author: "Nadia Ogene"
+date: "4/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Downloading and Prepping the Data
+```{r}
+# Load Libraries
+library(gmodels)
+library(e1071)
+library(caret)
+library(class)
+library(C50)
+library(neuralnet)
+
+# Downloading and Prepping the Data
+hr <- read.csv("HRDataset_v14.csv", stringsAsFactors = T)
+
+
+# Null Unnecessary Columns
+hr$ï..Employee_Name <- NULL
+hr$DOB <- NULL
+hr$MarriedID <- NULL
+hr$MaritalStatusID <- NULL
+hr$GenderID <- NULL
+hr$State <- NULL
+hr$Zip <- NULL
+hr$EmpStatusID <- NULL
+hr$DeptID <- NULL
+hr$ManagerID <- NULL
+hr$PositionID <- NULL
+hr$DateofHire <- NULL
+hr$DateofTermination <- NULL
+hr$LastPerformanceReview_Date <- NULL
+
+summary(hr)
+
+# Use model.matrix to Convert Factors to Dummy Variables
+hr_d <- as.data.frame(model.matrix(~.-1,hr))
+str(hr_d)
+
+# Randomize the Rows
+set.seed(12345)
+hr_random <- hr_d[sample(nrow(hr_d)),]
+
+#Normalize the Data
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x)))
+}
+
+# Normalize Everything
+hr_norm <- as.data.frame(lapply(hr_random, normalize))
+
+```
+
+## Run Linear Regression
+```{r}
+hr_model1 <- lm(formula = Salary ~ ., data = hr_norm, family = "binomial")
+summary(hr_model1)
+
+## Refine Linear Model
+# hr_model2 <- lm(formula = Salary ~ EmpID + , data = hr_norm, family = "binomial")
+# summary(hr_model2)
+
+```
+
