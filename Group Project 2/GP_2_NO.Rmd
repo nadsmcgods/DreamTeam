@@ -35,11 +35,12 @@ hr$EmpStatusID <- NULL
 hr$DeptID <- NULL
 hr$ManagerID <- NULL
 hr$PositionID <- NULL
-hr$DateofHire <- NULL
-hr$DateofTermination <- NULL
-hr$LastPerformanceReview_Date <- NULL
+#hr$DateofHire <- NULL
+#hr$DateofTermination <- NULL
+#hr$LastPerformanceReview_Date <- NULL
 
 summary(hr)
+str(hr)
 
 # Use model.matrix to Convert Factors to Dummy Variables
 hr_d <- as.data.frame(model.matrix(~.-1,hr))
