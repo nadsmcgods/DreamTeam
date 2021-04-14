@@ -18,26 +18,33 @@ library(caret)
 library(class)
 library(C50)
 library(neuralnet)
+library(lubridate, warn.conflicts = FALSE)
 
 # Downloading and Prepping the Data
 hr <- read.csv("HRDataset_v14.csv", stringsAsFactors = T)
-
+str(hr)
 
 # Null Unnecessary Columns
-hr$ï..Employee_Name <- NULL
-hr$DOB <- NULL
+hr$Employee_Name <- NULL
 hr$MarriedID <- NULL
 hr$MaritalStatusID <- NULL
 hr$GenderID <- NULL
-hr$State <- NULL
+#hr$State <- NULL
 hr$Zip <- NULL
 hr$EmpStatusID <- NULL
 hr$DeptID <- NULL
 hr$ManagerID <- NULL
 hr$PositionID <- NULL
-#hr$DateofHire <- NULL
-#hr$DateofTermination <- NULL
-#hr$LastPerformanceReview_Date <- NULL
+hr$DateofHire <- mdy(hr$DateofHire)
+hr$DateofTermination <- mdy(hr$DateofTermination)
+hr$LastPerformanceReview_Date <- mdy(hr$LastPerformanceReview_Date)
+hr$DOB <- mdy(hr$DOB)
+hr$Age <- as.duration(mdy("10/19/2020") - hr$DOB)
+hr$Age
+hr$Tenure <- ifelse(hr$TermReason == "N/A-StillEmployed", as.duration(mdy("10/19/2020")-hr$DateofHire),as.duration(hr$DateofTermination-hr$DateofHire))
+hr$Tenure
+
+
 
 summary(hr)
 str(hr)
@@ -45,6 +52,7 @@ str(hr)
 # Use model.matrix to Convert Factors to Dummy Variables
 hr_d <- as.data.frame(model.matrix(~.-1,hr))
 str(hr_d)
+summary(hr_d)
 
 # Randomize the Rows
 set.seed(12345)
